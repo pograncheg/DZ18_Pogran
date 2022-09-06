@@ -1,12 +1,16 @@
-const url = 'https://it-academy-js-api-zmicerboksha.vercel.app/api/course/books?'
+const url = 'https://it-academy-js-api-zmicerboksha.vercel.app/api/course/books';
+// let newUrl = url;
 const tableBody = document.querySelector('.table tbody');
 const pageNumbers = document.querySelector('.pagination');
 const selectSize = document.querySelector('#pagesSelect');
 const inputSearch = document.querySelector('.input-search');
 const buttonSearch = document.querySelector('.search');
-let searchLine ='';
-let countOnPage = '';
-
+const orderByTitleDesc = document.querySelector('.fa-caret-up');
+console.log(orderByTitleDesc)
+let mySearch ='';
+let myPage = 'page=0';
+let mySize = 'size=20';
+let myOrderBy = '';
 function comeOn(book) {
     let tr = document.createElement('tr');
     tr.innerHTML = `<td>${book.id}</td><td>${book.title}</td><td>${book.author}</td>
@@ -16,41 +20,45 @@ function comeOn(book) {
 
 function main(response){
     let content = response.content;
-            let totalPages = response.totalPages;
-            tableBody.innerHTML = '';
-            for (let i = 0; i < content.length; i++) {
-                comeOn(content[i]);
+        let totalPages = response.totalPages;
+        tableBody.innerHTML = '';
+        for (let i = 0; i < content.length; i++) {
+            comeOn(content[i]);
+        }
+        pageNumbers.innerHTML = '';
+        for (let j = 0; j < totalPages; j++) {
+            let newLi = document.createElement('li');
+            newLi.classList.add('page-item');
+            newLi.innerHTML = `<a class="page-link" href="#">${j + 1}</a>`;
+            if (j === 0) {
+                newLi.classList.add('disabled');
             }
-            pageNumbers.innerHTML = '';
-            for (let j = 0; j < totalPages; j++) {
-                let newLi = document.createElement('li');
-                newLi.classList.add('page-item');
-                newLi.innerHTML = `<a class="page-link" href="#">${j + 1}</a>`;
-                newLi.addEventListener('click', e => {
-                    // tableBody.innerHTML = '';
-                    fetch(url + `&page=${j}`)
+            newLi.addEventListener('click', e => {
+                // tableBody.innerHTML = '';
+                myPage = `page=${j}`;
+                console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+                fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
 
-                        .then(resp => resp.json())
-                        .then(response => {
-                            let content = response.content;
-                            let totalPages = response.totalPages;
-                            tableBody.innerHTML = '';
-                            for (let i = 0; i < content.length; i++) {
-                                comeOn(content[i]);
-                            }
-                        })
-                        .catch(err => {
-                            console.log(err);
-                            alert('Ошибка!')
-                        })
+                    .then(resp => resp.json())
+                    .then(response => {
+                        let content = response.content;
+                        let totalPages = response.totalPages;
+                        tableBody.innerHTML = '';
+                        for (let i = 0; i < content.length; i++) {
+                            comeOn(content[i]);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        alert('Ошибка!')
+                    })
+                document.querySelectorAll('.disabled').forEach(li =>{
+                    li.classList.remove('disabled');
                 })
-                console.log(newLi);
-                console.log(pageNumbers);
-                if (j === 0) {
-                    newLi.classList.add('disabled');
-                }
-                pageNumbers.append(newLi);
-            }
+                newLi.classList.add('disabled');
+            })
+            pageNumbers.append(newLi);
+        }
 }
 
 
@@ -74,7 +82,9 @@ fetch(url)
             }
             newLi.addEventListener('click', e => {
                 // tableBody.innerHTML = '';
-                fetch(url + `?page=${j}`)
+                myPage = `page=${j}`;
+                console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+                fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
 
                     .then(resp => resp.json())
                     .then(response => {
@@ -94,7 +104,7 @@ fetch(url)
                 })
                 newLi.classList.add('disabled');
             })
-            console.log(newLi);
+            // console.log(newLi);
             // console.log(pageNumbers);
             // if (j === 0) {
             //     newLi.classList.add('disabled');
@@ -111,7 +121,10 @@ fetch(url)
 selectSize.onchange = function () {
     let newSize = +selectSize.value;
     let newUrl = `https://it-academy-js-api-zmicerboksha.vercel.app/api/course/books?size=${newSize}`;
-    fetch(newUrl)
+    mySize = `size=${newSize}`;
+    myPage = `page=0`;
+    console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+    fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
 
         .then(resp => resp.json())
         .then(response => {
@@ -131,7 +144,9 @@ selectSize.onchange = function () {
                 }
                 newLi.addEventListener('click', e => {
                     // tableBody.innerHTML = '';
-                    fetch(newUrl + `&page=${j}`)
+                    myPage = `page=${j}`;
+                    console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+                    fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
 
                         .then(resp => resp.json())
                         .then(response => {
@@ -151,8 +166,8 @@ selectSize.onchange = function () {
                     })
                     newLi.classList.add('disabled');
                 })
-                console.log(newLi);
-                console.log(pageNumbers);
+                // console.log(newLi);
+                // console.log(pageNumbers);
 
                 pageNumbers.append(newLi);
             }
@@ -168,9 +183,12 @@ selectSize.onchange = function () {
 }
 
 buttonSearch.addEventListener('click', ()=>{
-    console.log(inputSearch.value);
+    // console.log(inputSearch.value);
     let newUrl = `https://it-academy-js-api-zmicerboksha.vercel.app/api/course/books?search=${inputSearch.value}`;
-    fetch(newUrl)
+    mySearch = `&search=${inputSearch.value}`;
+    myPage = `page=0`;
+    console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+    fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
 
         .then(resp => resp.json())
         .then(response => {
@@ -190,7 +208,9 @@ buttonSearch.addEventListener('click', ()=>{
         }
         newLi.addEventListener('click', e => {
             // tableBody.innerHTML = '';
-            fetch(newUrl + `&page=${j}`)
+            myPage = `page=${j}`;
+            console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+            fetch(url + '?' + mySize + '&' + myPage + mySearch)
 
                 .then(resp => resp.json())
                 .then(response => {
@@ -210,8 +230,66 @@ buttonSearch.addEventListener('click', ()=>{
             })
             newLi.classList.add('disabled');
         })
-        console.log(newLi);
-        console.log(pageNumbers);
+        // console.log(newLi);
+        // console.log(pageNumbers);
+
+        pageNumbers.append(newLi);
+    }
+        })
+        .catch(err => {
+            console.log(err);
+            alert('Ошибка!')
+        })
+    
+})
+
+orderByTitleDesc.addEventListener('click', ()=>{
+    myOrderBy = `&orderBy=title,desc`;
+    console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+    fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
+
+        .then(resp => resp.json())
+        .then(response => {
+            let content = response.content;
+            let totalPages = response.totalPages;
+            tableBody.innerHTML = '';
+            for (let i = 0; i < content.length; i++) {
+                comeOn(content[i]);
+            }
+            pageNumbers.innerHTML = '';
+    for (let j = 0; j < totalPages; j++) {
+        let newLi = document.createElement('li');
+        newLi.classList.add('page-item');
+        newLi.innerHTML = `<a class="page-link" href="#">${j + 1}</a>`;
+        if (j === 0) {
+            newLi.classList.add('disabled');
+        }
+        newLi.addEventListener('click', e => {
+            // tableBody.innerHTML = '';
+            myPage = `page=${j}`;
+            console.log(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy);
+            fetch(url + '?' + mySize + '&' + myPage + mySearch + myOrderBy)
+
+                .then(resp => resp.json())
+                .then(response => {
+                    let content = response.content;
+                    let totalPages = response.totalPages;
+                    tableBody.innerHTML = '';
+                    for (let i = 0; i < content.length; i++) {
+                        comeOn(content[i]);
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert('Ошибка!')
+                })
+            document.querySelectorAll('.disabled').forEach(li =>{
+                li.classList.remove('disabled');
+            })
+            newLi.classList.add('disabled');
+        })
+        // console.log(newLi);
+        // console.log(pageNumbers);
 
         pageNumbers.append(newLi);
     }
